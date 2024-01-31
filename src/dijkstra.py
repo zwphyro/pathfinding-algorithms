@@ -3,33 +3,47 @@ from queue import PriorityQueue
 class Dijkstra():
     def __init__(self, grid):
         self._grid = grid 
+        self._amount_of_nodes = 0
+        for line in grid:
+            for node in line:
+                self._amount_of_nodes += 1 if node == 0 else 0
 
     def get_path(self, start_node, finish_node):
-        queue = PriorityQueue()
-        queue.put((0, start_node, None))
-
-        path = {}
+        path = {start_node: None}
+        minimal_distance = {start_node: 0}
+        processed_nodes = set() 
         
-        while not queue.empty():
-            distance, current_node, previous_node = queue.get()
-            
-            if current_node in path:
-                continue
+        while len(processed_nodes) != self._amount_of_nodes:
+            current_node = self._pick_node(minimal_distance, processed_nodes)
 
-            path[current_node] = previous_node
+            processed_nodes.add(current_node)
 
-            if current_node == finish_node:
-                break
-
+            neighbour_distance = minimal_distance[current_node] + 1
             for x_neighbour, y_neighbour in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
                 neighbour_node = (current_node[0] + x_neighbour, current_node[1] + y_neighbour)
                 
-                if not self._is_valid(neighbour_node):
+                if not self._is_valid(neighbour_node) or \
+                    neighbour_node in path and minimal_distance[neighbour_node] <= neighbour_distance:
                     continue
-                
-                queue.put((distance + 1, neighbour_node, current_node))
+
+                path[neighbour_node] = current_node
+                minimal_distance[neighbour_node] = neighbour_distance
 
         return self._get_path_list(path, finish_node)
+
+    def _pick_node(self, nodes_distances, processed_nodes):
+        picked_node = None
+        picked_distance = float("inf") 
+
+        for node in nodes_distances:
+            distance = nodes_distances[node]
+            if node in processed_nodes or distance >= picked_distance:
+                continue
+
+            picked_node = node
+            picked_distance = distance
+
+        return picked_node
 
     def _is_valid(self, node):
         x, y = node
