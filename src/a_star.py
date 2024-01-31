@@ -38,7 +38,7 @@ class AStar():
                 if not self._is_valid(neighbour_node):
                     continue
                 
-                queue.put((distance + self._heuristic_distance(neighbour_node, finish_node), neighbour_node, current_node))
+                queue.put((distance + 1 + self._heuristic_distance(neighbour_node, finish_node), neighbour_node, current_node))
         
         return self._get_path_list(path, finish_node)
 
